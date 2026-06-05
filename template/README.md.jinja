@@ -1,0 +1,93 @@
+# {{ project_title }}
+
+*{{ description }}*
+
+## What this is
+
+{{ description }}
+
+This project is built with the **{{ stack }}** stack.
+
+## Running locally
+
+{% if stack_kind == 'node' %}```bash
+npm ci          # install exact dependencies from the committed lockfile
+npm run dev     # start the development server
+npm run check   # type-check and build (the verify command)
+npm run build   # produce the static output in dist/
+npm run preview # preview the production build
+```
+{% elif stack_kind == 'python' %}```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -e .        # install the package and its dependencies
+pytest                  # run the test suite (the verify command)
+ruff check .            # lint
+```
+{% elif stack_kind == 'r' %}```r
+# From an R session at the project root:
+devtools::load_all()   # load the project
+devtools::test()       # run tests (the verify command)
+devtools::check()      # full R CMD check
+```
+{% else %}```bash
+# Static site: open index.html in a browser, or serve it locally, e.g.
+python -m http.server
+```
+{% endif %}
+## How it builds and deploys
+
+{% if stack_kind == 'node' %}The build tool compiles the source into `dist/`. Installs are reproducible from the committed lockfile (`npm ci`, not `npm install`).{% if static_site %} The site is served under the base path `{{ base_path }}` to match GitHub Pages deployment.{% endif %}
+{% elif stack_kind == 'python' %}This is a Python project. Pin dependencies in `pyproject.toml` so environments are reproducible. The verify command runs the tests and linter before each commit.
+{% elif stack_kind == 'r' %}This is an R project. Pin the environment (for example with `renv`) so it is reproducible. The verify command runs the package checks before each commit.
+{% else %}This is a static project.{% if static_site %} The site is served under the base path `{{ base_path }}` on GitHub Pages.{% else %} It builds locally with no live deployment.{% endif %}
+{% endif %}
+CI re-runs the build, the verify command, and a secret scan on every push, so a
+broken or leaky commit is caught automatically.
+
+## Development workflow
+
+This repository follows the `eek-a-dev` commit-to-`main` workflow:
+
+- one prompt equals one reviewable unit of work;
+- prompt files live in `docs-dev/agent/prompts/`;
+- prompt work is committed directly to `main` using the exact prompt filename as
+  the commit message;
+- do not create feature branches or pull requests unless explicitly instructed;
+- run the project verify command and prompt checks before committing.
+
+Start with `docs-dev/agent/how_to_use.md` for the daily workflow.
+
+## Reference documents
+
+- `docs-dev/reference/primary_authoritative/specification.md` — binding design and architecture reference.
+- `docs-dev/reference/secondary_background/overview.md` — non-binding product overview.
+- `docs-dev/planning/current_state.md` — current repository state and implemented progress.
+
+## Local safety hooks
+
+Optional but recommended after cloning locally:
+
+```bash
+pre-commit install
+```
+
+This enables local checks for large files, private keys, `.env` files, prompt
+numbering, and basic formatting before commits.
+
+{% if license == 'MIT' %}## Licence
+
+Released under the MIT Licence. See `LICENSE`.
+{% else %}## Licence status
+
+No licence has been granted yet. All rights are reserved unless a `LICENSE` file
+is added later.
+{% endif %}
+{% if visibility == 'public' %}## Public repository note
+
+This repository is public. Do not commit secrets, credentials, private notes,
+customer material, or proprietary material. `docs-dev/` is publicly visible but
+is never included in the deployed build output.
+{% else %}## Repository note
+
+Keep secrets, credentials, and `.env*` files out of the repository entirely.
+{% endif %}
