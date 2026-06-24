@@ -76,7 +76,13 @@ jdk_version:
 
 android_compile_sdk:
   type: str
-  help: "compileSdk / targetSdk Android API level (current stable: 36 = Android 16)."
+  help: "compileSdk: Android API level to compile against (current-stable AndroidX needs 37)."
+  default: "37"
+  when: "{{ stack_kind == 'android' }}"
+
+android_target_sdk:
+  type: str
+  help: "targetSdk: Android API level whose runtime behaviour the app targets (36 = Android 16)."
   default: "36"
   when: "{{ stack_kind == 'android' }}"
 

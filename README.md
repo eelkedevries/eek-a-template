@@ -64,7 +64,8 @@ copier update --trust
 | `license` | `none` / `MIT` | `none` |
 | `author`, `year` | MIT copyright fields (only asked when licensing) | — |
 | `jdk_version` | JDK major version (Android only) | `17` |
-| `android_compile_sdk` | compileSdk / targetSdk API level (Android only) | `36` |
+| `android_compile_sdk` | compileSdk API level (Android only) | `37` |
+| `android_target_sdk` | targetSdk API level (Android only) | `36` |
 | `android_min_sdk` | minSdk API level (Android only) | `24` |
 | `android_package` | application id / package (Android only) | derived from `project_name` |
 
@@ -83,8 +84,9 @@ complete, buildable project — Kotlin, Jetpack Compose with Material 3, a singl
 `app` module, Kotlin-DSL build scripts, a Gradle version catalogue, and a
 **committed** Gradle wrapper (jar included, `gradlew` executable). Platform
 levels and the JDK are template variables (`android_compile_sdk`,
-`android_min_sdk`, `jdk_version`) with current-stable defaults; library and
-plugin versions live in the version catalogue (`gradle/libs.versions.toml`).
+`android_target_sdk`, `android_min_sdk`, `jdk_version`) with current-stable
+defaults; library and plugin versions live in the version catalogue
+(`gradle/libs.versions.toml`).
 
 The phone is not used for compilation. The generated `Build APK` workflow builds
 a **debug** APK on a GitHub-hosted runner (Android SDK preinstalled; no secrets,
