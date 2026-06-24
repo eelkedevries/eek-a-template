@@ -1,6 +1,8 @@
 plugins {
+    // Kotlin support is built into the Android Gradle Plugin from AGP 9, so the
+    // former org.jetbrains.kotlin.android plugin must not be applied. The Compose
+    // compiler plugin still applies and is pinned to AGP's bundled Kotlin version.
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
