@@ -48,7 +48,18 @@ Recorded at setup; these override the defaults above where they differ.
 {% if static_site %}- **Deploy base path:** `{{ base_path }}`
 {% else %}- **Deploy base path:** _not applicable (no static site)._
 {% endif %}
-## Supporting guides
+{% if stack_kind == 'android' %}
+## Android stack notes
+
+This project compiles in CI, not on the phone. Keep these invariants:
+
+- **The Gradle wrapper stays committed** — `gradle/wrapper/gradle-wrapper.jar` and the executable bit on `gradlew` (restore with `git update-index --chmod=+x gradlew` if it is ever lost). A missing wrapper jar or lost executable bit are the two routine causes of a first CI build failing.
+- **Builds go through CI by default.** Every push runs the **Build APK** workflow, which produces the debug `app-debug` artefact on a GitHub-hosted runner. The debug signing key suffices for sideloading.
+- **Release signing, keystores, and Play/Firebase distribution are out of scope** here; they belong to a later, separately scoped prompt.
+- **SDK levels and the JDK are template variables**; library and plugin versions live in the Gradle version catalogue (`gradle/libs.versions.toml`). Bump versions there, not in the build scripts.
+- **If on-device building is ever attempted** (for example Termux on the 8 GB phone), cap memory and skip the daemon — `./gradlew assembleDebug --no-daemon` with a capped heap (`org.gradle.jvmargs=-Xmx2048m` is already set) — and set Termux's `aapt2FromMavenOverride` to a native `aapt2`, since the Maven `aapt2` is an x86-64 binary that will not run on aarch64. On-device building is not the default path.
+
+{% endif %}## Supporting guides
 
 `how_to_use.md` (map + daily loop), `prompt_authoring_guide.md` (writing prompts), `prompt_execution_guide.md` (running them), `prompt_iteration_guide.md` (supersede/revert), `document_contract.md` (what documents the project expects), `reviews/code_review_guide.md` (reviews).
 

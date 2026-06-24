@@ -1,0 +1,85 @@
+# Self-validation for the eek-a-template skeleton (this repository, not the
+# generated projects). It generates samples with Copier and proves the Android
+# stack yields a genuinely buildable project, while confirming the Node scaffold
+# is unaffected. Runs on every push and PR.
+name: Validate template
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  android-e2e:
+    name: Android scaffold builds end-to-end
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Copier
+        run: pip install copier
+
+      - name: Generate Android sample
+        run: |
+          copier copy --defaults --trust --vcs-ref HEAD \
+            --data project_name=sample-android \
+            --data project_title="Sample Android" \
+            --data "description=End-to-end scaffold check." \
+            --data stack_kind=android \
+            . "$RUNNER_TEMP/sample-android"
+
+      - name: Structural assertions
+        run: bash scripts/validate-generated.sh "$RUNNER_TEMP/sample-android"
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build the generated sample (assembleDebug)
+        working-directory: ${{ runner.temp }}/sample-android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Confirm the debug APK exists
+        run: test -f "$RUNNER_TEMP/sample-android/app/build/outputs/apk/debug/app-debug.apk"
+
+  node-structure:
+    name: Node scaffold unaffected
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Copier
+        run: pip install copier
+
+      - name: Generate Node sample
+        run: |
+          copier copy --defaults --trust --vcs-ref HEAD \
+            --data project_name=sample-node \
+            --data project_title="Sample Node" \
+            --data "description=Structural regression check." \
+            --data stack_kind=node \
+            . "$RUNNER_TEMP/sample-node"
+
+      - name: Assert Node CI present and no Android files leaked
+        run: |
+          test -f "$RUNNER_TEMP/sample-node/.github/workflows/check-build.yml"
+          test ! -e "$RUNNER_TEMP/sample-node/.github/workflows/build-apk.yml"
+          test ! -e "$RUNNER_TEMP/sample-node/gradlew"
+          test ! -e "$RUNNER_TEMP/sample-node/app"
+          test ! -e "$RUNNER_TEMP/sample-node/settings.gradle.kts"
+          echo "Node scaffold structurally unaffected by the Android stack."

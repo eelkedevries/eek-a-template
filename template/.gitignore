@@ -14,6 +14,15 @@ dist/
 build/
 coverage/
 
+# Android / Gradle (the committed wrapper under gradle/wrapper/ must NOT be ignored)
+.gradle/
+local.properties
+*.apk
+*.aab
+*.keystore
+*.jks
+.cxx/
+
 # temporary internal material
 docs-dev/tmp/
 docs-dev/private/

@@ -52,6 +52,7 @@ stack_kind:
     "Static HTML": static-html
     "Python": python
     "R": r
+    "Android (Kotlin / Jetpack Compose)": android
     "Other / mixed": other
   default: node
 
@@ -59,7 +60,37 @@ stack:
   type: str
   help: "Free-text stack description, e.g. 'node-vite + typescript', 'python', 'psychopy'."
   default: >-
-    {% if stack_kind == 'node' %}node-vite + typescript{% elif stack_kind == 'static-html' %}static-html{% elif stack_kind == 'python' %}python{% elif stack_kind == 'r' %}r{% else %}other{% endif %}
+    {% if stack_kind == 'node' %}node-vite + typescript{% elif stack_kind == 'static-html' %}static-html{% elif stack_kind == 'python' %}python{% elif stack_kind == 'r' %}r{% elif stack_kind == 'android' %}android-kotlin + jetpack-compose{% else %}other{% endif %}
+
+# --------------------------------------------------------------------------- #
+# Android (only asked for the Android stack). Platform levels and the JDK move
+# on a yearly cadence, so they are variables with current-stable defaults
+# rather than hard-coded constants. Library versions live in the Gradle version
+# catalogue (app's gradle/libs.versions.toml), the idiomatic place to bump them.
+# --------------------------------------------------------------------------- #
+jdk_version:
+  type: str
+  help: "JDK major version for the Android build (the Android Gradle Plugin requires 17)."
+  default: "17"
+  when: "{{ stack_kind == 'android' }}"
+
+android_compile_sdk:
+  type: str
+  help: "compileSdk / targetSdk Android API level (current stable: 36 = Android 16)."
+  default: "36"
+  when: "{{ stack_kind == 'android' }}"
+
+android_min_sdk:
+  type: str
+  help: "minSdk: lowest Android API level the app supports."
+  default: "24"
+  when: "{{ stack_kind == 'android' }}"
+
+android_package:
+  type: str
+  help: "Application id / package name (reverse-DNS; lowercase letters, digits, dots)."
+  default: "com.example.{{ project_name | replace('-', '') | replace('_', '') | replace('.', '') }}"
+  when: "{{ stack_kind == 'android' }}"
 
 # --------------------------------------------------------------------------- #
 # Repository
@@ -115,7 +146,7 @@ workflow_policy:
 verify_command:
   type: str
   help: "Verify command run before each commit (blank to leave the default note)."
-  default: "{% if stack_kind == 'node' %}`npm run check` (after the scaffold exists).{% endif %}"
+  default: "{% if stack_kind == 'node' %}`npm run check` (after the scaffold exists).{% elif stack_kind == 'android' %}`./gradlew assembleDebug --no-daemon` (CI builds the APK on a hosted runner).{% endif %}"
 
 testing_policy:
   type: str

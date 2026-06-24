@@ -52,7 +52,7 @@ copier update --trust
 | `project_name` | repo name (lowercase, GitHub-style) | — (validated) |
 | `project_title` | human title | derived from `project_name` |
 | `description` | one-line description (seeds README + overview) | — |
-| `stack_kind` | `node` / `static-html` / `python` / `r` / `other` | `node` |
+| `stack_kind` | `node` / `static-html` / `python` / `r` / `android` / `other` | `node` |
 | `stack` | free-text stack description | derived from `stack_kind` |
 | `visibility` | `public` / `private` | `public` |
 | `static_site` | publishes a static site? | true for node / static-html |
@@ -63,6 +63,10 @@ copier update --trust
 | `testing_policy` | testing policy | no tests unless asked |
 | `license` | `none` / `MIT` | `none` |
 | `author`, `year` | MIT copyright fields (only asked when licensing) | — |
+| `jdk_version` | JDK major version (Android only) | `17` |
+| `android_compile_sdk` | compileSdk / targetSdk API level (Android only) | `36` |
+| `android_min_sdk` | minSdk API level (Android only) | `24` |
+| `android_package` | application id / package (Android only) | derived from `project_name` |
 
 ### Guard: private + static site
 
@@ -72,12 +76,31 @@ and **refuses** unless you confirm a paid plan or an external host. Resolve by
 making the repo public, using a paid plan, hosting on Netlify/Cloudflare/Vercel,
 or keeping it private with no live site.
 
+### Android: build the APK in CI, download, sideload
+
+Select the stack with `--data stack_kind=android`. The Android stack ships a
+complete, buildable project — Kotlin, Jetpack Compose with Material 3, a single
+`app` module, Kotlin-DSL build scripts, a Gradle version catalogue, and a
+**committed** Gradle wrapper (jar included, `gradlew` executable). Platform
+levels and the JDK are template variables (`android_compile_sdk`,
+`android_min_sdk`, `jdk_version`) with current-stable defaults; library and
+plugin versions live in the version catalogue (`gradle/libs.versions.toml`).
+
+The phone is not used for compilation. The generated `Build APK` workflow builds
+a **debug** APK on a GitHub-hosted runner (Android SDK preinstalled; no secrets,
+no signing) and uploads it as the `app-debug` artefact. The loop is: push →
+CI builds → download the artefact from the run → sideload. Release signing and
+store distribution are deferred to a later, separately scoped prompt.
+
 ## What the template does not do
 
 It produces the framework only. It does **not** scaffold stack-specific source
 (e.g. `npm create vite`), create the GitHub repo, or build features. The
 `eek-a-dev-scaffold` skill handles those judgement steps after running the
 template; per-stack guidance lives in that skill's `references/stack-presets.md`.
+The **Android** stack is the exception: because its build runs in CI straight
+from the generated tree, the template ships the complete buildable project
+rather than deferring the scaffold.
 
 ## Publishing this template
 

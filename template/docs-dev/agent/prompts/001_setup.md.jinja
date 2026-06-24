@@ -2,8 +2,9 @@
 
 ## Goal
 
-Create the minimal runnable project scaffold for the **{{ stack }}** stack and
-nothing else.
+{% if stack_kind == 'android' %}Confirm the pre-generated **{{ stack }}** scaffold builds a debug APK, and add
+nothing else.{% else %}Create the minimal runnable project scaffold for the **{{ stack }}** stack and
+nothing else.{% endif %}
 
 ## Scope
 
@@ -17,13 +18,17 @@ template. Reference relevant notes in `docs-dev/planning/` if they exist.
 
 ## Required changes
 
-{% if stack_kind == 'node' %}1. Initialise the chosen Node scaffold (for example, `npm create vite@latest`) with default configuration only.
+{% if stack_kind == 'android' %}1. The Android scaffold (committed Gradle wrapper, `app` module, Compose Material 3 Empty Activity) is already present from the template — do **not** re-create it. Confirm it is intact: `gradle/wrapper/gradle-wrapper.jar` committed, `gradlew` executable, and the `app` module and manifest present.
+2. Confirm the debug APK builds — push and let the **Build APK** workflow run, or run `./gradlew assembleDebug --no-daemon` on a machine with the Android SDK.
+3. Confirm the README's build-and-sideload note matches the project. Add no features, screens, or release signing.
+{% else %}{% if stack_kind == 'node' %}1. Initialise the chosen Node scaffold (for example, `npm create vite@latest`) with default configuration only.
 {% elif stack_kind == 'python' %}1. Initialise a minimal Python project: a `src/` package and a `pyproject.toml` with default configuration only.
 {% elif stack_kind == 'r' %}1. Initialise a minimal R project or package skeleton.
 {% elif stack_kind == 'static-html' %}1. Create a minimal static scaffold: an `index.html` plus an assets folder, with no features.
 {% else %}1. Initialise the minimal scaffold for this stack with default configuration only.
 {% endif %}2. Add a `README.md` line describing how to run the project locally.
 3. Ensure the project starts cleanly with the standard development command.
+{% endif %}
 
 ## Do not implement
 
@@ -35,9 +40,11 @@ Do not implement:
 ## Acceptance criteria
 
 The task is complete when:
-- the scaffold installs cleanly;
+{% if stack_kind == 'android' %}- the committed Gradle wrapper and `app` module are intact;
+- `./gradlew assembleDebug` produces `app/build/outputs/apk/debug/app-debug.apk` (in CI, or locally with the SDK);
+- no feature code beyond the default scaffold has been added.{% else %}- the scaffold installs cleanly;
 - the project starts without errors;
-- no feature code beyond the default scaffold has been added.
+- no feature code beyond the default scaffold has been added.{% endif %}
 
 ## Checks
 

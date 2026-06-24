@@ -29,6 +29,16 @@ devtools::load_all()   # load the project
 devtools::test()       # run tests (the verify command)
 devtools::check()      # full R CMD check
 ```
+{% elif stack_kind == 'android' %}The phone is not used for compilation. Push to a branch and the **Build APK**
+workflow builds a debug APK on a GitHub-hosted runner; download it from the
+run's **Artifacts** and sideload it.
+
+On a desktop with the Android SDK installed you can also build directly:
+
+```bash
+./gradlew assembleDebug --no-daemon
+# output: app/build/outputs/apk/debug/app-debug.apk
+```
 {% else %}```bash
 # Static site: open index.html in a browser, or serve it locally, e.g.
 python -m http.server
@@ -39,6 +49,7 @@ python -m http.server
 {% if stack_kind == 'node' %}The build tool compiles the source into `dist/`. Installs are reproducible from the committed lockfile (`npm ci`, not `npm install`).{% if static_site %} The site is served under the base path `{{ base_path }}` to match GitHub Pages deployment.{% endif %}
 {% elif stack_kind == 'python' %}This is a Python project. Pin dependencies in `pyproject.toml` so environments are reproducible. The verify command runs the tests and linter before each commit.
 {% elif stack_kind == 'r' %}This is an R project. Pin the environment (for example with `renv`) so it is reproducible. The verify command runs the package checks before each commit.
+{% elif stack_kind == 'android' %}Compilation is delegated to CI: every push builds a debug APK on a GitHub-hosted runner (no on-device build, no signing secrets), uploaded as the `app-debug` artefact to download and sideload. SDK levels and the JDK are template variables; library versions live in the Gradle version catalogue (`gradle/libs.versions.toml`). Release signing is deferred to a later, separately scoped prompt.
 {% else %}This is a static project.{% if static_site %} The site is served under the base path `{{ base_path }}` on GitHub Pages.{% else %} It builds locally with no live deployment.{% endif %}
 {% endif %}
 CI re-runs the build, the verify command, and a secret scan on every push, so a
