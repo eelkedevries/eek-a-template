@@ -3,7 +3,7 @@
 A public [Copier](https://copier.readthedocs.io) template that scaffolds new
 **eek-a-dev** project repositories: the two-root `docs/` + `docs-dev/` layout,
 agent instruction files (`AGENTS.md` / `CLAUDE.md`), the numbered-prompt
-workflow, pre-commit hooks, GitHub Actions CI, and a public-build safety check.
+workflow, the personal writing-style skill (`.claude/skills/writing-style/`), pre-commit hooks, GitHub Actions CI, and a public-build safety check.
 
 This repository is the **single source of truth** for the project skeleton. It is
 public so it can be fetched without authentication from both Claude Code and the
