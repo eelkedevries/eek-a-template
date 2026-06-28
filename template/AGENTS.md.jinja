@@ -19,6 +19,7 @@ Prompts need not be hand-written. When the user describes a task in plain langua
 - `docs-dev/reference/secondary_background/` — non-binding context and examples.
 - `docs-dev/planning/current_state.md` — living "where we are"; read at session start.
 - `docs/` — user-facing, publishable docs.
+- `.claude/skills/writing-style/` — the personal writing-style skill; it governs prose style for any written output (academic, professional, or essayistic).
 
 If the repository is public, everything in it — including `docs-dev/` — is publicly visible. Never put secrets, tokens, or `.env*` files in the repository. `docs-dev/` must never reach the deployed build output (see `scripts/check-public-build.sh`).
 
